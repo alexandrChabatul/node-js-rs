@@ -1,20 +1,22 @@
-import { IncomingMessage } from 'http'
-
-const bodyParser = async (request: IncomingMessage): Promise<any> => {
+const bodyParser = async (req: any): Promise<any> => {
   return new Promise((resolve, reject) => {
+    let body = '';
     try {
-      let body = ''
-      request.on('data', chunk => {
-        body += chunk
-      })
-      request.on('end', () => {
-        resolve(JSON.parse(body))
-      })
-    } catch (err) {
-      console.log(err)
-      reject(err)
-    }
-  })
-}
+      req.on('data', (chunk: any) => {
+        body += chunk;
+      });
 
-export { bodyParser }
+      req.on('end', () => {
+        try {
+          resolve(JSON.parse(body));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export { bodyParser };
