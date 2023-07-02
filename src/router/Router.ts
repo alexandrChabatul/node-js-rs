@@ -1,6 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { errorResponse } from '../utils/util.js'
 
+export interface IncomingMessageWithParams extends IncomingMessage {
+  params: { [key: string]: string }
+}
+
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  no-case-declarations */
 export default class Router {
@@ -81,12 +85,17 @@ export default class Router {
   private handlePath(
     req: IncomingMessage,
     res: ServerResponse,
-    path?: { path: string; handler: (...args: any) => any },
+    path?: { path: string; handler: (req: IncomingMessageWithParams, res: ServerResponse) => any },
   ) {
     if (!path) {
       errorResponse(req, res, 404, 'Wrong url. Path not found.')
     } else {
-      path.handler(req, res)
+      let params = {}
+      if (req.url) {
+        params = this.getParams(req.url, path.path)
+      }
+      const newReq: IncomingMessageWithParams = Object.assign({ params }, req)
+      path.handler(newReq, res)
     }
   }
 
@@ -98,7 +107,25 @@ export default class Router {
       const regex = new RegExp(`^${regexPattern}$`)
       return regex.test(url)
     } else {
-      return url.startsWith(path);
+      return url === path;
+    }
+  }
+
+  getParams(url: string, path: string): { [key: string]: string } {
+    const regexPattern = path.replace(/\{([^}]+)\}/g, '([^/]+)')
+    const regex = new RegExp(`^${regexPattern}$`)
+    const matches = url.match(regex)
+
+    if (matches) {
+      const paramNames = path.match(/\{([^}]+)\}/g)?.map(match => match.slice(1, -1))
+      const params: { [key: string]: string } = {}
+      if (!paramNames) return {}
+      paramNames.forEach((paramName, index) => {
+        params[paramName] = matches[index + 1]
+      })
+      return params
+    } else {
+      return {}
     }
   }
 }
