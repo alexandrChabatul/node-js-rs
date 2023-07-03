@@ -10,7 +10,6 @@ export class UserController {
   async getUsers(req: ReqWithBodyAndParams, res: ServerResponse) {
     try {
       const result = await this.userService.getAllUsers();
-      console.log(result, 'from controller');
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.write(JSON.stringify(result));

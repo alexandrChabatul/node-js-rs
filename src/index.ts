@@ -5,7 +5,6 @@ import { bodyParser } from './utils/bodyParser.js';
 import { errorResponse } from './utils/util.js';
 
 const createServer = (port: string | undefined) => {
-  console.log('create server');
   const currentPort = port || 3000;
   
   const routerController = new RouterController();
@@ -17,7 +16,6 @@ const createServer = (port: string | undefined) => {
     try {
       body = await bodyParser(req);
     } catch (e) {
-      console.log(e, 'from create');
       return errorResponse(req, res, 400, 'Wrong body. Wrong JSON format.');
     }
     const reqWithBody = Object.assign({ body }, req);

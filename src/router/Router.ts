@@ -115,7 +115,6 @@ export default class Router {
   }
 
   getParams(url: string, path: string): { [key: string]: string } {
-    console.log(url, path);
     const regexPattern = path.replace(/\{([^}]+)\}/g, '([^/]+)');
     const regex = new RegExp(`^${regexPattern}$`);
     const matches = url.match(regex);
