@@ -1,7 +1,6 @@
 import { randomUUID } from 'crypto';
-import users from '../data/users.json' assert { type: 'json' };
 import { ServerError } from '../errors/ServerError.js';
-import { writeToFile } from '../utils/util.js';
+import { readUsersFile, writeToFile } from '../utils/util.js';
 
 export interface User {
   id: string;
@@ -11,12 +10,13 @@ export interface User {
 }
 
 export class UserService {
-  getAllUsers() {
-    return users;
+  async getAllUsers() {
+    return await readUsersFile();
   }
 
-  getUserById(id: string) {
+  async getUserById(id: string) {
     this.checkId(id);
+    const users = await readUsersFile();
     const user = users.find((user: User) => user.id === id);
     if (!user) throw new ServerError(404, `User with id - ${id} not found`);
     return user;
@@ -25,6 +25,7 @@ export class UserService {
   async addUser(username: string, age: number, hobbies: string[]) {
     const id = randomUUID();
     const user = { id, username, age, hobbies };
+    const users = await readUsersFile();
     (users as User[]).push(user);
     await writeToFile(users);
     return user;
@@ -32,6 +33,7 @@ export class UserService {
 
   async editUser(id: string, username: string, age: number, hobbies: string[]) {
     this.checkId(id);
+    const users = await readUsersFile();
     const userIndex = users.findIndex((user: User) => user.id === id);
     if (userIndex === -1) throw new ServerError(404, `User with id - ${id} not found`);
     const user =  {
@@ -44,6 +46,7 @@ export class UserService {
 
   async deleteUser(id: string): Promise<boolean> {
     this.checkId(id);
+    const users = await readUsersFile();
     const userIndex = users.findIndex((user: User) => user.id === id);
     if (userIndex === -1) throw new ServerError(404, `User with id - ${id} not found`);
     users.splice(userIndex, 1);

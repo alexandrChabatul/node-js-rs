@@ -7,9 +7,9 @@ import { ServerError } from '../errors/ServerError.js';
 export class UserController {
   userService = new UserService();
 
-  getUsers(req: ReqWithBodyAndParams, res: ServerResponse) {
+  async getUsers(req: ReqWithBodyAndParams, res: ServerResponse) {
     try {
-      const result = this.userService.getAllUsers();
+      const result = await this.userService.getAllUsers();
       console.log(result, 'from controller');
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
@@ -25,11 +25,11 @@ export class UserController {
     }
   }
 
-  getUserById(req: ReqWithBodyAndParams, res: ServerResponse) {
+  async getUserById(req: ReqWithBodyAndParams, res: ServerResponse) {
     try {
       const id = req.params['id'];
       if (!id) return errorResponse(req, res, 400, "Bad request. Id param don't found.");
-      const result = this.userService.getUserById(id);
+      const result = await this.userService.getUserById(id);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.write(JSON.stringify(result));
