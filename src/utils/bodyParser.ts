@@ -8,6 +8,7 @@ const bodyParser = async (req: any): Promise<any> => {
 
       req.on('end', () => {
         try {
+          body = body || '{}';
           resolve(JSON.parse(body));
         } catch (e) {
           reject(e);
